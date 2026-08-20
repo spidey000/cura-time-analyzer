@@ -10,16 +10,32 @@ from .heatmap import HeatmapMode, HeatmapPoint, build_heatmap
 from .models import MotionCategory
 
 try:
-    from PyQt5.QtCore import QTimer, Qt
-    from PyQt5.QtGui import QColor, QPainter, QPen
-    from PyQt5.QtWidgets import (
+    # Cura 5.x / SDK 8.x ships PyQt6. Keep PyQt5 as a fallback for older Cura.
+    from PyQt6.QtCore import QTimer, Qt
+    from PyQt6.QtGui import QColor, QPainter, QPen
+    from PyQt6.QtWidgets import (
         QComboBox, QDialog, QFileDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel,
         QListWidget, QMessageBox, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout,
-        QWidget,
+        QWidget, QAbstractItemView,
     )
-except ImportError:  # pragma: no cover - only imported inside Cura
-    QDialog = object  # type: ignore[misc,assignment]
-    QWidget = object  # type: ignore[misc,assignment]
+    _ALIGN_CENTER = Qt.AlignmentFlag.AlignCenter
+    _SELECT_ROWS = QAbstractItemView.SelectionBehavior.SelectRows
+except ImportError:
+    try:
+        from PyQt5.QtCore import QTimer, Qt
+        from PyQt5.QtGui import QColor, QPainter, QPen
+        from PyQt5.QtWidgets import (
+            QAbstractItemView, QComboBox, QDialog, QFileDialog, QGridLayout, QGroupBox,
+            QHBoxLayout, QLabel, QListWidget, QMessageBox, QPushButton, QTableWidget,
+            QTableWidgetItem, QVBoxLayout, QWidget,
+        )
+        _ALIGN_CENTER = Qt.AlignCenter
+        _SELECT_ROWS = QAbstractItemView.SelectRows
+    except ImportError:  # pragma: no cover - only imported inside Cura
+        QDialog = object  # type: ignore[misc,assignment]
+        QWidget = object  # type: ignore[misc,assignment]
+        _ALIGN_CENTER = 0
+        _SELECT_ROWS = 0
 
 
 _CATEGORY_LABELS = {
@@ -60,10 +76,10 @@ class ToolpathHeatmapView(QWidget):
 
     def paintEvent(self, event):  # pragma: no cover - exercised inside Cura Qt
         painter = QPainter(self)
-        painter.fillRect(self.rect(), Qt.black)
+        painter.fillRect(self.rect(), QColor(0, 0, 0))
         if not self._points:
-            painter.setPen(Qt.white)
-            painter.drawText(self.rect(), Qt.AlignCenter, "Selecciona un G-code y una capa")
+            painter.setPen(QColor(255, 255, 255))
+            painter.drawText(self.rect(), _ALIGN_CENTER, "Selecciona un G-code y una capa")
             return
         xs = [value for point in self._points for value in (point.x_start_mm, point.x_end_mm)]
         ys = [value for point in self._points for value in (point.y_start_mm, point.y_end_mm)]
@@ -129,7 +145,7 @@ class AnalysisDialog(QDialog):
 
         self.layer_table = QTableWidget(0, 8)
         self.layer_table.setHorizontalHeaderLabels(["Capa", "Z (mm)", "Tiempo", "% total", "Extrusión", "Travel", "Retracciones", "Dominante"])
-        self.layer_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.layer_table.setSelectionBehavior(_SELECT_ROWS)
         self.layer_table.itemSelectionChanged.connect(self._show_layer_detail)
         root.addWidget(self.layer_table)
 

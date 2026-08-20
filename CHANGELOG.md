@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 — 2026-08-20
+
+- Added Cura SDK 8.0.0–8.9.0 metadata.
+- Added PyQt6 support for Cura 5.x with PyQt5 fallback.
+- Adapted Qt alignment and selection enums for PyQt6.
+- Added static compatibility tests for the SDK 8.x declaration.
+
 ## 0.2.0 — 2026-08-20
 
 - Añadido soporte para archivos FlashForge `.gx` / XGCode.

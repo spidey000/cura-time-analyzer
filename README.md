@@ -4,7 +4,7 @@ Plugin de UltiMaker Cura para analizar el tiempo estimado de impresión por capa
 
 ## Estado
 
-**Versión:** 0.2.0 — heatmap y análisis what-if.
+**Versión:** 0.2.1 — compatibilidad SDK 8.x, heatmap y análisis what-if.
 
 Incluye análisis local de G-code, desglose por capa/categoría, recomendaciones explicables, exportación JSON/CSV, soporte `.gx`, segmentos de toolpath y heatmap 2D por capa. La arquitectura deja preparados `AnalysisRun`, `ComparisonRun` y `ProfileChangeSet` para las versiones B y C.
 
@@ -28,7 +28,7 @@ En Linux, la carpeta suele estar bajo `~/.local/share/cura/<versión>/`; en Wind
 
 La documentación oficial indica usar [contribute.ultimaker.com](https://contribute.ultimaker.com). El archivo debe ser un ZIP cuya carpeta raíz coincida con el identificador del paquete. El empaquetador del proyecto genera `dist/CuraTimeAnalyzer.plugin` con la carpeta interna `CuraTimeAnalyzer/`.
 
-El paquete declara compatibilidad con SDK `6.5.0`, que debe ajustarse si se quiere soportar otra rama mayor de Cura.
+El paquete declara compatibilidad con la familia SDK `8.0.0`–`8.9.0`, correspondiente a Cura 5.0–5.9 según la documentación oficial. La interfaz intenta primero PyQt6 (Cura 5.x) y mantiene PyQt5 como fallback para instalaciones antiguas.
 
 ## Principios
 
