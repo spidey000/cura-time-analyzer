@@ -15,9 +15,9 @@ def test_plugin_metadata_contract():
     assert "extension" in module.register(None)
 
 
-def test_plugin_declares_latest_sdk_8_9():
+def test_plugin_declares_latest_sdk_8_12():
     metadata = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
-    assert metadata["supported_sdk_versions"] == ["8.9.0"]
+    assert metadata["supported_sdk_versions"] == ["8.12.0"]
 
 
 def test_qt_ui_targets_cura_5_qt6():

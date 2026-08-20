@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.4 — 2026-08-20
+
+- Targeted Cura 5.13.x / SDK 8.12.0.
+- Fixed the compatibility declaration that prevented loading on the latest Cura.
+
 ## 0.2.3 — 2026-08-20
 
 - Removed the legacy PyQt5 fallback.
