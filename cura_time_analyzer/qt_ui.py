@@ -2,19 +2,24 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .controller import AnalysisController
+from .heatmap import HeatmapMode, HeatmapPoint, build_heatmap
 from .models import MotionCategory
 
 try:
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import QTimer, Qt
+    from PyQt5.QtGui import QColor, QPainter, QPen
     from PyQt5.QtWidgets import (
-        QDialog, QFileDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QListWidget,
-        QMessageBox, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout,
+        QComboBox, QDialog, QFileDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+        QListWidget, QMessageBox, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout,
+        QWidget,
     )
 except ImportError:  # pragma: no cover - only imported inside Cura
     QDialog = object  # type: ignore[misc,assignment]
+    QWidget = object  # type: ignore[misc,assignment]
 
 
 _CATEGORY_LABELS = {
@@ -41,6 +46,45 @@ def _duration(seconds: float) -> str:
     return f"{minutes // 60} h {minutes % 60:02d} min"
 
 
+class ToolpathHeatmapView(QWidget):
+    """2D top-down toolpath heatmap; ready to be replaced by a Cura scene adapter."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._points: list[HeatmapPoint] = []
+        self.setMinimumHeight(260)
+
+    def set_points(self, points: list[HeatmapPoint]) -> None:
+        self._points = points
+        self.update()
+
+    def paintEvent(self, event):  # pragma: no cover - exercised inside Cura Qt
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), Qt.black)
+        if not self._points:
+            painter.setPen(Qt.white)
+            painter.drawText(self.rect(), Qt.AlignCenter, "Selecciona un G-code y una capa")
+            return
+        xs = [value for point in self._points for value in (point.x_start_mm, point.x_end_mm)]
+        ys = [value for point in self._points for value in (point.y_start_mm, point.y_end_mm)]
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        scale_x = (self.width() - 24) / max(max_x - min_x, 1.0)
+        scale_y = (self.height() - 24) / max(max_y - min_y, 1.0)
+        scale = min(scale_x, scale_y)
+        offset_x = (self.width() - (max_x - min_x) * scale) / 2
+        offset_y = (self.height() - (max_y - min_y) * scale) / 2
+        for point in self._points:
+            color = point.color_rgba
+            painter.setPen(QPen(Qt.white if color[0] + color[1] + color[2] < 240 else Qt.black, 1))
+            painter.setPen(QPen(QColor(*color), 2))
+            x1 = offset_x + (point.x_start_mm - min_x) * scale
+            y1 = self.height() - (offset_y + (point.y_start_mm - min_y) * scale)
+            x2 = offset_x + (point.x_end_mm - min_x) * scale
+            y2 = self.height() - (offset_y + (point.y_end_mm - min_y) * scale)
+            painter.drawLine(round(x1), round(y1), round(x2), round(y2))
+
+
 class AnalysisDialog(QDialog):
     """MVP dialog: choose G-code, inspect layers, export results."""
 
@@ -49,6 +93,7 @@ class AnalysisDialog(QDialog):
         self.setWindowTitle("Cura Time Analyzer")
         self.resize(900, 620)
         self.controller = AnalysisController()
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="cura-time-analyzer")
         self._build_ui()
 
     def _build_ui(self):
@@ -88,6 +133,18 @@ class AnalysisDialog(QDialog):
         self.layer_table.itemSelectionChanged.connect(self._show_layer_detail)
         root.addWidget(self.layer_table)
 
+        heatmap_controls = QHBoxLayout()
+        heatmap_controls.addWidget(QLabel("Heatmap:"))
+        self.heatmap_mode = QComboBox()
+        for label, mode in (("Tiempo", HeatmapMode.TIME), ("Travel", HeatmapMode.TRAVEL), ("Retracciones", HeatmapMode.RETRACTION), ("Categoría", HeatmapMode.CATEGORY)):
+            self.heatmap_mode.addItem(label, mode)
+        self.heatmap_mode.currentIndexChanged.connect(self._refresh_heatmap)
+        heatmap_controls.addWidget(self.heatmap_mode)
+        heatmap_controls.addStretch()
+        root.addLayout(heatmap_controls)
+        self.heatmap_view = ToolpathHeatmapView()
+        root.addWidget(self.heatmap_view)
+
         detail_layout = QHBoxLayout()
         self.detail_label = QLabel("Selecciona una capa para ver el desglose.")
         self.detail_label.setWordWrap(True)
@@ -100,11 +157,20 @@ class AnalysisDialog(QDialog):
         path, _ = QFileDialog.getOpenFileName(self, "Seleccionar G-code", "", "G-code (*.gcode *.gco *.g *.gx);;Todos (*.*)")
         if not path:
             return
+        future = self._executor.submit(self.controller.analyze_file, path)
+        future.add_done_callback(self._analysis_finished)
+        self.warning_label.setText("Analizando en segundo plano… Cura sigue disponible.")
+
+    def _analysis_finished(self, future):
         try:
-            result = self.controller.analyze_file(path)
+            result = future.result()
         except (OSError, UnicodeError, ValueError) as exc:
-            QMessageBox.critical(self, "No se pudo analizar", str(exc))
+            message = str(exc)
+            QTimer.singleShot(0, lambda: QMessageBox.critical(self, "No se pudo analizar", message))
             return
+        QTimer.singleShot(0, lambda: self._present_result(result))
+
+    def _present_result(self, result):
         self.total_label.setText(_duration(result.total_time_seconds))
         self.layers_label.setText(str(result.layer_count))
         slowest = max(result.layers, key=lambda layer: layer.total_time_seconds, default=None)
@@ -124,7 +190,18 @@ class AnalysisDialog(QDialog):
         for item in result.recommendations:
             keys = ", ".join(candidate.key for candidate in item.parameter_candidates)
             self.recommendations.addItem(f"{item.id}: revisar {keys}")
+        self.warning_label.setText("Estimación rápida basada en el G-code; puede variar respecto al tiempo real.")
         self.layer_table.resizeColumnsToContents()
+        self._refresh_heatmap()
+
+    def _refresh_heatmap(self):
+        if not self.controller.last_result:
+            self.heatmap_view.set_points([])
+            return
+        rows = self.layer_table.selectionModel().selectedRows()
+        layer_index = self.controller.last_result.layers[rows[0].row()].index if rows else None
+        mode = self.heatmap_mode.currentData()
+        self.heatmap_view.set_points(build_heatmap(self.controller.last_result, mode, layer_index))
 
     def _show_layer_detail(self):
         rows = self.layer_table.selectionModel().selectedRows()
@@ -135,6 +212,11 @@ class AnalysisDialog(QDialog):
         for category, seconds in sorted(layer.category_times.items(), key=lambda item: item[1], reverse=True):
             parts.append(f"{_CATEGORY_LABELS.get(category, category.value)}: {_duration(seconds)}")
         self.detail_label.setText("\n".join(parts))
+        self._refresh_heatmap()
+
+    def closeEvent(self, event):
+        self._executor.shutdown(wait=False, cancel_futures=True)
+        super().closeEvent(event)
 
     def _export_json(self):
         if not self.controller.last_result:

@@ -23,8 +23,10 @@ class CuraTimeAnalyzerExtension(Extension):
         self._register_menu()
 
     def _register_menu(self):
-        add_menu_item = getattr(self._application, "addMenuItem", None)
-        if add_menu_item:
+        add_menu_item = getattr(self, "addMenuItem", None)
+        if not callable(add_menu_item):
+            add_menu_item = getattr(self._application, "addMenuItem", None)
+        if callable(add_menu_item):
             add_menu_item("Analizar tiempo por capa…", self._open_dialog)
 
     def _open_dialog(self):

@@ -11,6 +11,7 @@ Cura menu
               ├── Summary section
               ├── Layer table
               ├── Layer detail section
+              ├── Toolpath heatmap (time/travel/retractions/category)
               ├── Recommendation list
               └── Export actions
 ```
@@ -38,8 +39,8 @@ Es la frontera entre UI y dominio. En versiones futuras podrá recibir dos `Anal
 
 1. En Cura: menú **Extensions → Analizar tiempo por capa…**.
 2. Pulsar **Analizar G-code…**.
-3. Seleccionar el archivo `.gcode`, `.gco` o `.g`.
-4. Revisar resumen, capas, detalle y recomendaciones.
+3. Seleccionar el archivo `.gcode`, `.gco`, `.g`, `.gx` o `.gxcode`.
+4. Revisar resumen, capas, detalle, heatmap y recomendaciones.
 5. Exportar JSON o CSV.
 
 ## Decisiones para futuras versiones

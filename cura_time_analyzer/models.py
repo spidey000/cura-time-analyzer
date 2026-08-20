@@ -33,6 +33,22 @@ class ParserWarning:
 
 
 @dataclass
+class MotionSegment:
+    layer_index: int
+    x_start_mm: float
+    y_start_mm: float
+    z_start_mm: float
+    x_end_mm: float
+    y_end_mm: float
+    z_end_mm: float
+    category: MotionCategory
+    distance_mm: float
+    extrusion_delta_mm: float
+    estimated_time_seconds: float
+    feed_rate_mm_min: float
+
+
+@dataclass
 class LayerStats:
     index: int
     z_height_mm: float = 0.0
@@ -46,6 +62,7 @@ class LayerStats:
     move_count: int = 0
     category_times: dict[MotionCategory, float] = field(default_factory=dict)
     category_distances: dict[MotionCategory, float] = field(default_factory=dict)
+    segments: list[MotionSegment] = field(default_factory=list)
 
     def add(self, category: MotionCategory, seconds: float, distance: float, extrusion: float) -> None:
         self.total_time_seconds += seconds
@@ -67,6 +84,23 @@ class LayerStats:
         data = asdict(self)
         data["category_times"] = {key.value: value for key, value in self.category_times.items()}
         data["category_distances"] = {key.value: value for key, value in self.category_distances.items()}
+        data["segments"] = [
+            {
+                "layer_index": segment.layer_index,
+                "x_start_mm": segment.x_start_mm,
+                "y_start_mm": segment.y_start_mm,
+                "z_start_mm": segment.z_start_mm,
+                "x_end_mm": segment.x_end_mm,
+                "y_end_mm": segment.y_end_mm,
+                "z_end_mm": segment.z_end_mm,
+                "category": segment.category.value,
+                "distance_mm": segment.distance_mm,
+                "extrusion_delta_mm": segment.extrusion_delta_mm,
+                "estimated_time_seconds": segment.estimated_time_seconds,
+                "feed_rate_mm_min": segment.feed_rate_mm_min,
+            }
+            for segment in self.segments
+        ]
         return data
 
 

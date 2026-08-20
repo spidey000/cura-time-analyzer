@@ -7,7 +7,7 @@ import re
 from dataclasses import dataclass
 from typing import Iterable
 
-from .models import AnalysisRun, GlobalStats, LayerStats, MotionCategory, ParserWarning
+from .models import AnalysisRun, GlobalStats, LayerStats, MotionCategory, MotionSegment, ParserWarning
 
 _TOKEN_RE = re.compile(r"([A-Za-z])([-+]?\d*\.?\d+)")
 
@@ -141,6 +141,16 @@ def analyze_lines(lines: Iterable[str]) -> AnalysisRun:
             state.z_height = new_z
         layer = _ensure_layer(layers, state)
         layer.add(category, moved_time, distance, delta_e)
+        layer.segments.append(MotionSegment(
+            layer_index=layer.index,
+            x_start_mm=old[0], y_start_mm=old[1], z_start_mm=old[2],
+            x_end_mm=new_x, y_end_mm=new_y, z_end_mm=new_z,
+            category=category,
+            distance_mm=distance,
+            extrusion_delta_mm=delta_e,
+            estimated_time_seconds=moved_time,
+            feed_rate_mm_min=state.feed_rate,
+        ))
         global_stats.total_time_seconds += moved_time
         global_stats.move_count += 1
         global_stats.distance_extrusion_mm += max(delta_e, 0.0)

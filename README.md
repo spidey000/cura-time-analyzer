@@ -4,9 +4,9 @@ Plugin de UltiMaker Cura para analizar el tiempo estimado de impresión por capa
 
 ## Estado
 
-**Versión:** 0.1.0 — MVP implementado.
+**Versión:** 0.2.0 — heatmap y análisis what-if.
 
-Incluye análisis local de G-code, desglose por capa/categoría, recomendaciones explicables, exportación JSON/CSV y una UI Qt Widgets integrada en el menú de Cura. La arquitectura deja preparados `AnalysisRun`, `ComparisonRun` y `ProfileChangeSet` para las versiones B y C.
+Incluye análisis local de G-code, desglose por capa/categoría, recomendaciones explicables, exportación JSON/CSV, soporte `.gx`, segmentos de toolpath y heatmap 2D por capa. La arquitectura deja preparados `AnalysisRun`, `ComparisonRun` y `ProfileChangeSet` para las versiones B y C.
 
 ## Documentación
 
