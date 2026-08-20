@@ -1,18 +1,7 @@
 {
   "name": "Cura Time Analyzer",
   "author": "Jorge Martín",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Analiza el tiempo estimado por capa y categoría de movimiento.",
-  "supported_sdk_versions": [
-    "8.0.0",
-    "8.1.0",
-    "8.2.0",
-    "8.3.0",
-    "8.4.0",
-    "8.5.0",
-    "8.6.0",
-    "8.7.0",
-    "8.8.0",
-    "8.9.0"
-  ]
+  "supported_sdk_versions": ["8.9.0"]
 }

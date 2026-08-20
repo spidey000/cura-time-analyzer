@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 — 2026-08-20
+
+- Targeted the latest verified Marketplace SDK entry: `8.9.0`.
+- Removed older SDK declarations to prevent ambiguous Marketplace validation.
+
 ## 0.2.1 — 2026-08-20
 
 - Added Cura SDK 8.0.0–8.9.0 metadata.

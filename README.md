@@ -4,7 +4,7 @@ Plugin de UltiMaker Cura para analizar el tiempo estimado de impresión por capa
 
 ## Estado
 
-**Versión:** 0.2.1 — compatibilidad SDK 8.x, heatmap y análisis what-if.
+**Versión:** 0.2.2 — SDK 8.9.0, compatibilidad PyQt6, heatmap y análisis what-if.
 
 Incluye análisis local de G-code, desglose por capa/categoría, recomendaciones explicables, exportación JSON/CSV, soporte `.gx`, segmentos de toolpath y heatmap 2D por capa. La arquitectura deja preparados `AnalysisRun`, `ComparisonRun` y `ProfileChangeSet` para las versiones B y C.
 
