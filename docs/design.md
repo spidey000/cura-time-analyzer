@@ -1,6 +1,6 @@
 # Cura Time Analyzer — Diseño técnico
 
-**Estado:** propuesta para aprobación
+**Estado:** implementado en versión 0.1.0.
 
 **Objetivo:** analizar el G-code generado por Cura y explicar el tiempo consumido por cada capa y por cada categoría de movimiento, produciendo recomendaciones accionables sin modificar todavía los perfiles.
 

@@ -1,0 +1,10 @@
+[project]
+name = "cura-time-analyzer"
+version = "0.1.0"
+description = "UltiMaker Cura plugin for per-layer print-time analysis"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
