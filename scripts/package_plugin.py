@@ -8,7 +8,7 @@ import json
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE_ID = "CuraTimeAnalyzer"
 EXCLUDED_PARTS = {".git", ".github", ".pytest_cache", "__pycache__", "dist", "docs", "tests", "scripts"}
-EXCLUDED_FILES = {".gitignore", "pyproject.toml", "MARKETPLACE.md"}
+EXCLUDED_FILES = {".gitignore", "pyproject.toml", "MARKETPLACE.md", "AGENTS.md"}
 MAX_PACKAGE_BYTES = 50 * 1024 * 1024
 
 
