@@ -10,7 +10,7 @@ from .heatmap import HeatmapMode, HeatmapPoint, build_heatmap
 from .models import MotionCategory
 
 try:
-    # Cura 5.x / SDK 8.x ships PyQt6. Keep PyQt5 as a fallback for older Cura.
+    # Cura 5.x / SDK 8.x uses PyQt6.
     from PyQt6.QtCore import QTimer, Qt
     from PyQt6.QtGui import QColor, QPainter, QPen
     from PyQt6.QtWidgets import (
@@ -21,21 +21,11 @@ try:
     _ALIGN_CENTER = Qt.AlignmentFlag.AlignCenter
     _SELECT_ROWS = QAbstractItemView.SelectionBehavior.SelectRows
 except ImportError:
-    try:
-        from PyQt5.QtCore import QTimer, Qt
-        from PyQt5.QtGui import QColor, QPainter, QPen
-        from PyQt5.QtWidgets import (
-            QAbstractItemView, QComboBox, QDialog, QFileDialog, QGridLayout, QGroupBox,
-            QHBoxLayout, QLabel, QListWidget, QMessageBox, QPushButton, QTableWidget,
-            QTableWidgetItem, QVBoxLayout, QWidget,
-        )
-        _ALIGN_CENTER = Qt.AlignCenter
-        _SELECT_ROWS = QAbstractItemView.SelectRows
-    except ImportError:  # pragma: no cover - only imported inside Cura
-        QDialog = object  # type: ignore[misc,assignment]
-        QWidget = object  # type: ignore[misc,assignment]
-        _ALIGN_CENTER = 0
-        _SELECT_ROWS = 0
+    # Keep repository-side tests importable without Cura's bundled Qt.
+    QDialog = object  # type: ignore[misc,assignment]
+    QWidget = object  # type: ignore[misc,assignment]
+    _ALIGN_CENTER = 0
+    _SELECT_ROWS = 0
 
 
 _CATEGORY_LABELS = {

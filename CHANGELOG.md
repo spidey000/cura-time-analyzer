@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3 — 2026-08-20
+
+- Removed the legacy PyQt5 fallback.
+- Targeted only Cura SDK 8.9.0 / Cura 5.9.x.
+
 ## 0.2.2 — 2026-08-20
 
 - Targeted the latest verified Marketplace SDK entry: `8.9.0`.
