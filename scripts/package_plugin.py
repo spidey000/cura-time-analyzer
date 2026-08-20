@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
-"""Build a Cura Marketplace-compatible package archive."""
+"""Build and validate a Cura Marketplace-compatible package archive."""
 
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
+import json
 
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE_ID = "CuraTimeAnalyzer"
 OUTPUT = ROOT / "dist" / f"{PACKAGE_ID}.plugin"
-EXCLUDED_PARTS = {".git", ".github", ".pytest_cache", "__pycache__", "dist"}
-EXCLUDED_FILES = {".gitignore", "pyproject.toml"}
+EXCLUDED_PARTS = {".git", ".github", ".pytest_cache", "__pycache__", "dist", "docs", "tests", "scripts"}
+EXCLUDED_FILES = {".gitignore", "pyproject.toml", "MARKETPLACE.md"}
+MAX_PACKAGE_BYTES = 50 * 1024 * 1024
 
 
 def main() -> None:
+    manifest = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
+    required = {"name", "author", "version", "description", "supported_sdk_versions"}
+    missing = required.difference(manifest)
+    if missing:
+        raise SystemExit(f"plugin.json missing required fields: {sorted(missing)}")
+    if not isinstance(manifest["supported_sdk_versions"], list) or not manifest["supported_sdk_versions"]:
+        raise SystemExit("supported_sdk_versions must be a non-empty list")
+
     OUTPUT.parent.mkdir(exist_ok=True)
     with ZipFile(OUTPUT, "w", ZIP_DEFLATED) as archive:
         for path in sorted(ROOT.rglob("*")):
@@ -21,6 +31,17 @@ def main() -> None:
                 continue
             relative = path.relative_to(ROOT)
             archive.write(path, f"{PACKAGE_ID}/{relative.as_posix()}")
+
+    if OUTPUT.stat().st_size > MAX_PACKAGE_BYTES:
+        raise SystemExit(f"package exceeds Marketplace limit: {OUTPUT.stat().st_size} bytes")
+    with ZipFile(OUTPUT) as archive:
+        names = set(archive.namelist())
+        required_paths = {f"{PACKAGE_ID}/plugin.json", f"{PACKAGE_ID}/__init__.py", f"{PACKAGE_ID}/LICENSE", f"{PACKAGE_ID}/CHANGELOG.md"}
+        missing_paths = required_paths.difference(names)
+        if missing_paths:
+            raise SystemExit(f"package missing required files: {sorted(missing_paths)}")
+        if any(name.startswith(("tests/", "docs/", "scripts/")) for name in names):
+            raise SystemExit("development-only files leaked into package")
     print(OUTPUT)
 
 

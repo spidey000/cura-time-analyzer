@@ -37,18 +37,8 @@ class CuraTimeAnalyzerExtension(Extension):
 
 
 def getMetaData():
-    return {
-        "plugin": {
-            "name": "Cura Time Analyzer",
-            "author": "Jorge Martín",
-            "version": "0.1.0",
-            "description": "Analiza el tiempo estimado por capa y categoría de movimiento.",
-            "supported_sdk_versions": ["6.5.0"],
-        },
-        "extension": {
-            "name": "Cura Time Analyzer",
-        },
-    }
+    # Plugin identity and SDK compatibility live in the mandatory plugin.json.
+    return {}
 
 
 def register(app):

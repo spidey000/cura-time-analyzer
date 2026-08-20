@@ -1,12 +1,7 @@
 {
-  "plugin": {
-    "name": "Cura Time Analyzer",
-    "author": "Jorge Martín",
-    "version": "0.2.0",
-    "description": "Analiza el tiempo estimado por capa y categoría de movimiento.",
-    "supported_sdk_versions": ["6.5.0"]
-  },
-  "extension": {
-    "name": "Cura Time Analyzer"
-  }
+  "name": "Cura Time Analyzer",
+  "author": "Jorge Martín",
+  "version": "0.2.0",
+  "description": "Analiza el tiempo estimado por capa y categoría de movimiento.",
+  "supported_sdk_versions": ["6.5.0"]
 }

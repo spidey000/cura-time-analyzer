@@ -6,8 +6,5 @@ def test_plugin_metadata_contract():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
-    metadata = module.getMetaData()
-
-    assert metadata["plugin"]["name"] == "Cura Time Analyzer"
-    assert metadata["plugin"]["supported_sdk_versions"] == ["6.5.0"]
+    assert module.getMetaData() == {}
     assert "extension" in module.register(None)
