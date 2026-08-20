@@ -13,14 +13,20 @@ Incluye análisis local de G-code, desglose por capa/categoría, recomendaciones
 - [Diseño técnico](docs/design.md)
 - [Diseño de UI](docs/ui.md)
 
-## Uso
+## Instalación manual sin Marketplace
 
 1. Ejecutar `python scripts/package_plugin.py`.
 2. En Cura, abrir **Help → Show Configuration Folder**.
-3. Copiar `dist/CuraTimeAnalyzer.plugin` al directorio de plugins de Cura o instalarlo mediante el gestor de paquetes si la versión lo permite.
-4. Reiniciar Cura.
-5. Abrir **Extensions → Analizar tiempo por capa…**.
-6. Seleccionar el G-code y exportar el análisis si se necesita.
+3. Crear dentro una carpeta `plugins` si no existe.
+4. Extraer `dist/CuraTimeAnalyzer.plugin` dentro de `plugins/`. Debe quedar `plugins/CuraTimeAnalyzer/plugin.json`.
+5. Reiniciar Cura.
+6. Abrir **Extensions → Analizar tiempo por capa…**.
+
+En Linux, la carpeta suele estar bajo `~/.local/share/cura/<versión>/`; en Windows bajo la carpeta de datos de Cura del usuario; en macOS bajo `~/Library/Application Support/cura/<versión>/`. Es preferible usar **Show Configuration Folder** porque la ruta exacta depende de la versión y del instalador.
+
+## Publicación en Cura Marketplace
+
+La documentación oficial indica usar [contribute.ultimaker.com](https://contribute.ultimaker.com). El archivo debe ser un ZIP cuya carpeta raíz coincida con el identificador del paquete. El empaquetador del proyecto genera `dist/CuraTimeAnalyzer.plugin` con la carpeta interna `CuraTimeAnalyzer/`.
 
 El paquete declara compatibilidad con SDK `6.5.0`, que debe ajustarse si se quiere soportar otra rama mayor de Cura.
 
