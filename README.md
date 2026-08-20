@@ -18,7 +18,7 @@ Incluye análisis local de G-code, desglose por capa/categoría, recomendaciones
 1. Ejecutar `python scripts/package_plugin.py`.
 2. En Cura, abrir **Help → Show Configuration Folder**.
 3. Crear dentro una carpeta `plugins` si no existe.
-4. Extraer `dist/CuraTimeAnalyzer.plugin` dentro de `plugins/`. Debe quedar `plugins/CuraTimeAnalyzer/plugin.json`.
+4. Extraer `dist/CuraTimeAnalyzer-0.2.4.plugin` dentro de `plugins/`. Debe quedar `plugins/CuraTimeAnalyzer/plugin.json`.
 5. Reiniciar Cura.
 6. Abrir **Extensions → Analizar tiempo por capa…**.
 
@@ -26,7 +26,7 @@ En Linux, la carpeta suele estar bajo `~/.local/share/cura/<versión>/`; en Wind
 
 ## Publicación en Cura Marketplace
 
-La documentación oficial indica usar [contribute.ultimaker.com](https://contribute.ultimaker.com). El archivo debe ser un ZIP cuya carpeta raíz coincida con el identificador del paquete. El empaquetador del proyecto genera `dist/CuraTimeAnalyzer.plugin` con la carpeta interna `CuraTimeAnalyzer/`.
+La documentación oficial indica usar [contribute.ultimaker.com](https://contribute.ultimaker.com). El archivo debe ser un ZIP cuya carpeta raíz coincida con el identificador del paquete. El empaquetador del proyecto genera `dist/CuraTimeAnalyzer-<version>.plugin` con la carpeta interna `CuraTimeAnalyzer/`.
 
 El paquete declara compatibilidad únicamente con SDK `8.12.0`, correspondiente a Cura 5.13.x. La interfaz utiliza PyQt6, sin fallback a APIs Qt antiguas.
 
